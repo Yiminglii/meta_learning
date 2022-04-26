@@ -1,6 +1,6 @@
 from pickletools import optimize
 from pyexpat import model
-from meta import meta_generater
+from .meta import meta_generater
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
