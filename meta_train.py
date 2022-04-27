@@ -27,8 +27,8 @@ class meta:
         self.optimizer=torch.optim.Adam(self.meta_g.parameters(),lr=0.001)
         self.Loss1=nn.MSELoss()
         self.loss2=nn.MSELoss()
-    def train(self,dataloader,epoch):
-        for epoch in range(1,epoch+1):
+    def train(self,dataloader,epochs):
+        for epoch in range(1,epochs+1):
             loss=0
 
             for i,data in enumerate(dataloader):
@@ -36,24 +36,14 @@ class meta:
                 images=images.to(self.device)
                 labels=labels.to(self.device)
                 pgd=self.model1(images)
-                adv=self.model2(images)
+                adv=self.model2(images)+images
                 shuffle=self.model3(images)
 
                 pre,map_k=self.meta_g(images,pgd,adv,shuffle) 
                 pre_labels=self.tar(pre) #计算扰动后的图像的分类情况
-                pre_labels=torch.argmax(pre_labels,dim=len(pre_labels))
-                # #calculate loss
-                # logits_model = self.tar(pre)
-                # probs_model = F.softmax(logits_model, dim=1)
-                # onehot_labels = torch.eye(self.model_num_labels, device=self.device)[labels]
+                pre_labels=torch.argmax(pre_labels,dim=1)
 
-                # # C&W loss function
-                # real = torch.sum(onehot_labels * probs_model, dim=1)
-                # other, _ = torch.max((1 - onehot_labels) * probs_model - onehot_labels * 10000, dim=1)
-                # zeros = torch.zeros_like(other)
-                # loss_adv = torch.max(real - other, zeros)
-                # loss1 = torch.sum(loss_adv)
-                loss1 = F.mse_loss(pre_labels,labels)
+                loss1 = -F.mse_loss(pre_labels.float(),labels.float())
                 loss2 = F.mse_loss(pre,images)
 
                 L1=0 #正则化（暂时还没编）
@@ -63,9 +53,7 @@ class meta:
                 (loss2+loss1).backward()
                 self.optimizer.step()
             
-            print('Epoch [%d/%d],  Loss1: %.4f, Loss2 %.4f'%(epoch+1, epoch, loss1.item(),loss2.item()))
-
-
+            print('Epoch [%d/%d],  Loss1: %.4f, Loss2 %.4f'%(epoch+1, epochs, loss1.item(),loss2.item()))
 
 
 
