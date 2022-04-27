@@ -35,9 +35,9 @@ class meta:
                 images,labels=data
                 images=images.to(self.device)
                 labels=labels.to(self.device)
-                pgd=self.model1(images)
+                pgd=self.model1(images,labels)
                 adv=self.model2(images)+images
-                shuffle=self.model3(images)
+                shuffle=self.model3(images,labels)
 
                 pre,map_k=self.meta_g(images,pgd,adv,shuffle) 
                 pre_labels=self.tar(pre) #计算扰动后的图像的分类情况
