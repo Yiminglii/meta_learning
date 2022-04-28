@@ -29,7 +29,6 @@ class meta:
         self.loss2=nn.MSELoss()
     def train(self,dataloader,epochs):
         for epoch in range(1,epochs+1):
-            loss=0
 
             for i,data in enumerate(dataloader):
                 images,labels=data
